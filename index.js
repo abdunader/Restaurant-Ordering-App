@@ -4,7 +4,6 @@ const itemsHTML = document.getElementById("menu-items");
 const orderListHTML = document.getElementById("order-list");
 const orderSuccessMessage = document.getElementById("order-success-message");
 const orderSuccessName = document.getElementById("order-success-name");
-// Track order items (we can use id to look up name/price from menuArray)
 const orderItems = [];
 
 function render() {

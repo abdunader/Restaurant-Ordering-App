@@ -10,13 +10,14 @@ function render() {
   let itemsContent = ``;
   menuArray.forEach((item) => {
     const { name, ingredients, id, price, emoji } = item;
+    const minPrice = Math.min(...price);
     itemsContent += `
         <div class="menu-item">
             <p class="item-emoji">${emoji}</p>
             <div class="menu-item-details">
                <h3>${name}</h3>
                <p>${ingredients}</p>
-               <p>$${price}</p>
+               <p>From $${minPrice}</p>
             </div>
             <button class="add-item-btn" data-item-id="${id}" aria-label="Add ${name}"><i class="fa-solid fa-plus"></i></button>
         </div>`;
@@ -25,9 +26,11 @@ function render() {
 }
 
 function getOrderTotal() {
-  return orderItems.reduce((sum, id) => {
-    const item = menuArray.find((i) => i.id === id);
-    return sum + (item ? item.price : 0);
+  return orderItems.reduce((sum, entry) => {
+    const item = menuArray.find((i) => i.id === entry.itemId);
+    if (!item) return sum;
+    const price = item.price[entry.sizeIndex ?? 0];
+    return sum + price;
   }, 0);
 }
 
@@ -39,11 +42,24 @@ function renderOrderList() {
   const total = getOrderTotal();
   orderListHTML.innerHTML = `<h2>Your Order</h2>`;
   orderListHTML.innerHTML += orderItems
-    .map((id, index) => {
-      const item = menuArray.find((i) => i.id === id);
-      return `<div class="order-item">
+    .map((entry, index) => {
+      const item = menuArray.find((i) => i.id === entry.itemId);
+      const sizeIndex = entry.sizeIndex ?? 0;
+      const price = item.price[sizeIndex];
+      const sizeOptions = item.sizes
+        .map(
+          (label, i) =>
+            `<option value="${i}" ${i === sizeIndex ? "selected" : ""}>${label}</option>`
+        )
+        .join("");
+      return `<div class="order-item" data-order-index="${index}">
         <span class="order-item-name">${item.name} <button class="remove-item-btn" data-order-index="${index}" aria-label="Remove ${item.name}">remove</button></span>
-        <span>$${item.price}</span>
+        <span class="order-item-size-price">
+          <select class="order-size-select" data-order-index="${index}" aria-label="Size for ${item.name}">
+            ${sizeOptions}
+          </select>
+          <span class="order-item-price">$${price}</span>
+        </span>
       </div>`;
     })
     .join("");
@@ -66,7 +82,7 @@ function addItemToOrder(e) {
 
   orderSuccessMessage.hidden = true;
   const itemId = parseInt(btn.dataset.itemId, 10);
-  orderItems.push(itemId);
+  orderItems.push({ itemId, sizeIndex: 0 });
   renderOrderList();
 }
 
@@ -90,6 +106,15 @@ function openPaymentModal() {
 function closePaymentModal() {
   paymentModal.classList.add("payment-modal-hidden");
   paymentModal.setAttribute("aria-hidden", "true");
+}
+
+function handleOrderSizeChange(e) {
+  const select = e.target.closest(".order-size-select");
+  if (!select) return;
+  const index = parseInt(select.dataset.orderIndex, 10);
+  const sizeIndex = parseInt(select.value, 10);
+  orderItems[index].sizeIndex = sizeIndex;
+  renderOrderList();
 }
 
 function handleOrderListClick(e) {
@@ -124,3 +149,4 @@ render();
 
 itemsHTML.addEventListener("click", addItemToOrder);
 orderListHTML.addEventListener("click", handleOrderListClick);
+orderListHTML.addEventListener("change", handleOrderSizeChange);

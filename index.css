@@ -117,9 +117,36 @@ h2 {
   justify-content: space-between;
   align-items: center;
   font-size: 18px;
+  gap: 12px;
 }
-.order-item span:last-child {
-  font-size: 0.9rem;
+
+.order-item-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.order-item-size-price {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.order-size-select {
+  font-family: inherit;
+  font-size: 14px;
+  padding: 6px 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  color: #393333;
+}
+
+.order-item-price {
+  font-size: 0.95rem;
+  font-weight: 600;
+  min-width: 2.5ch;
 }
 
 /* Fixed order footer at bottom of viewport */
@@ -166,12 +193,6 @@ h2 {
 }
 .payment-btn:hover {
   background: #13c289;
-}
-
-.order-item-name {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
 }
 
 .remove-item-btn {
